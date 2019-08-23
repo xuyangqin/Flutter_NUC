@@ -32,11 +32,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             BottomNavigationBarItem(
                 title: Text("消息"), icon: Icon(Icons.message)),
             BottomNavigationBarItem(
-                  title: Text("工作台"), icon: Icon(Icons.menu)),
+                  title: Text("工作台"), icon: Icon(Icons.payment)),
             BottomNavigationBarItem(
-                title: Text("通讯录"), icon: Icon(Icons.list)),
+                title: Text("通讯录"), icon: Icon(Icons.people_outline)),
             BottomNavigationBarItem(
-                title: Text("我的"), icon: Icon(Icons.perm_identity)),
+                title: Text("我的"), icon: Icon(Icons.perm_identity))
           ],
         ),
     );
