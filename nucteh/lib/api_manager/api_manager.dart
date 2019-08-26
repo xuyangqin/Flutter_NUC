@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nucteh/Utils/constant.dart';
 class Method {
   static final String get = "GET";
   static final String post = "POST";
@@ -15,7 +16,6 @@ class DioUtil {
   static final DioUtil _instance = DioUtil._init();
   static Dio _dio;
   static BaseOptions _options = getDefOptions();
-  static final BaseUrl = 'http://tongfangapi.feikongbao.net/';
   factory DioUtil() {
     return _instance;
   }
@@ -54,12 +54,12 @@ class DioUtil {
     return request(path, method: Method.get, pathParams: pathParams, data: data, errorCallback: errorCallback);
   }
   Future<Map<String, dynamic>> Loginpost(String path, {pathParams, data, Function errorCallback}) {
-    String pathUrl = BaseUrl + path;
+    String pathUrl = Constant.BaseUrl + path;
 
     return request(pathUrl, method: Method.post, pathParams: pathParams, data: data, errorCallback: errorCallback);
   }
   Future<Map<String, dynamic>> post(String path, {pathParams, var data, Function errorCallback}) async {
-    String pathUrl = BaseUrl + path;
+    String pathUrl = Constant.BaseUrl + path;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String LegalUnitID = await prefs.get('LegalUnitID');
 //    String token = await prefs.get('token');

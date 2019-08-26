@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nucteh/api_manager/api_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nucteh/TabBar.dart';
+import 'package:nucteh/Utils/constant.dart';
 class Login extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _LoginState();
@@ -115,7 +116,7 @@ class _LoginState extends State<Login> {
         )
     );
   }
-//登录
+///登录
   _login(context) async{
     if(_userNameController.text.length == 0){
 //      showSnackBar("用户名不能小于6位!");
@@ -125,9 +126,6 @@ class _LoginState extends State<Login> {
 //      showSnackBar("请输入用户密码！！");
       return;
     }
-//登录请求
-    String url = 'api/Account/L'
-        'oginAccount';
     Map param1 = {
       'pws': _passController.text,
       'uid': _userNameController.text,
@@ -137,7 +135,7 @@ class _LoginState extends State<Login> {
     Map param2 = {'': ''};
     Map params = {'Content': param2, 'Head': param1};
 
-    DioUtil().Loginpost(url,
+    DioUtil().Loginpost(Constant.LoginAccount,
         pathParams: {
         },
         data: params,
