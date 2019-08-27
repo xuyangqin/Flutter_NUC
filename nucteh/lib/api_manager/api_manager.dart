@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nucteh/Utils/constant.dart';
+import 'package:nucteh/Utils/toast.dart';
 class Method {
   static final String get = "GET";
   static final String post = "POST";
@@ -50,19 +51,20 @@ class DioUtil {
     _dio.options = _options;
   }
 
-  Future<Map<String, dynamic>> get(String path, {pathParams, data, Function errorCallback}) {
-    return request(path, method: Method.get, pathParams: pathParams, data: data, errorCallback: errorCallback);
+  Future<Map<String, dynamic>> get(context,String path, {pathParams, data, Function errorCallback}) {
+    return request(context,path, method: Method.get, pathParams: pathParams, data: data, errorCallback: errorCallback);
   }
-  Future<Map<String, dynamic>> Loginpost(String path, {pathParams, data, Function errorCallback}) {
+  ///登录请求
+  Future<Map<String, dynamic>> Loginpost(context,String path, {pathParams, data, Function errorCallback}) async{
     String pathUrl = Constant.BaseUrl + path;
 
-    return request(pathUrl, method: Method.post, pathParams: pathParams, data: data, errorCallback: errorCallback);
+    return request(context,pathUrl, method: Method.post, pathParams: pathParams, data: data, errorCallback: errorCallback);
   }
-  Future<Map<String, dynamic>> post(String path, {pathParams, var data, Function errorCallback}) async {
+  ///退出登录
+  Future<Map<String, dynamic>> LoginOut(context,String path, {pathParams, data, Function errorCallback}) async{
     String pathUrl = Constant.BaseUrl + path;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String LegalUnitID = await prefs.get('LegalUnitID');
-//    String token = await prefs.get('token');
     String pws = await prefs.get('pws');
     String uid = await prefs.get('Uid');
     Map param1 = {
@@ -80,11 +82,35 @@ class DioUtil {
       param2.addAll(data);
     }
     Map params = {'Content':param2,'Head':param1};
-    print('请求url:$pathUrl请求入参:$params');
-    return request(pathUrl, method: Method.post, pathParams: pathParams, data: params, errorCallback: errorCallback);
+    return request(context,pathUrl, method: Method.post, pathParams: params, data: data, errorCallback: errorCallback);
+  }
+  Future<Map<String, dynamic>> post(context,String path, {pathParams, var data, Function errorCallback}) async {
+    String pathUrl = Constant.BaseUrl + path;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String LegalUnitID = await prefs.get('LegalUnitID');
+    String pws = await prefs.get('pws');
+    String uid = await prefs.get('Uid');
+    Map param1 = {
+      'pws':pws,
+      'uid':uid,
+      'LegalUnitID':LegalUnitID,
+      'Version':'1.0.1',
+      'Language':'zh-CN',
+      'activeUid':'51D94D35-BA21-4400-ABD2-E7C71236FE2F'};
+    var param2;
+    if(data == ''){
+      param2 = '';
+    }else{
+      param2 = Map();
+      param2.addAll(data);
+    }
+    Map params = {'Content':param2,'Head':param1};
+    return request(context,pathUrl, method: Method.post, pathParams: pathParams, data: params, errorCallback: errorCallback);
   }
 
-  Future<Map<String, dynamic>> request(String path,{String method, Map pathParams, data, Function errorCallback}) async {
+  ///网络请求
+  Future<Map<String, dynamic>> request(context,String path,{String method, Map pathParams, data, Function errorCallback}) async {
+    print('============请求$path=======请求入参$data');
     ///restful请求处理
     if(pathParams != null) {
       pathParams.forEach((key, value) {
@@ -93,29 +119,84 @@ class DioUtil {
         }
       });
     }
+    ///弹出loading
+    if(context != null){
+
+    }
 
     Response response = await _dio.request(path, data: data, options: Options(method: method));
 
+    ///关闭loading
+    if(response != null){
+
+    }
     if(response.statusCode == HttpStatus.ok || response.statusCode == HttpStatus.created) {
       try {
         if(response.data is Map) {
-          return response.data;
 
+          Map responseData = response.data;
+
+          print('============求情返回$responseData');
+
+          Map headmap = response.data['Head'];
+          if(headmap['Code'] == Constant.loginOutCode || headmap['Code'] == 203){
+            ///退出登录
+            LoginOut(context,Constant.LoginOutAccount,
+                pathParams: {
+                },
+                data: null,
+                errorCallback: (statusCode) {
+                  Toast.show(context: context, msg: '$statusCode');
+                }
+            ).then((data) async {
+
+            });
+            return null;
+          }
+          if(headmap['Ret'] == 0){
+            return response.data;
+          }else{
+            String msg = response.data['Head']['Msg'];
+            if(msg.length > 0) {
+              errorCallback('$msg');
+            }else{
+              if(errorCallback != null) {
+                errorCallback('请求失败，请稍后重试');
+              }
+            }
+            return null;
+          }
         } else {
-
-          return json.decode(response.data.toString());
+          String msg = response.data['Head']['Msg'];
+          if(msg.length > 0) {
+            errorCallback('$msg');
+          }else{
+            if(errorCallback != null) {
+              errorCallback('请求失败，请稍后重试');
+            }
+          }
+          return null;
 
         }
       } catch(e) {
+         String msg = response.data['Head']['Msg'];
+        if(msg.length > 0) {
+          errorCallback('$msg');
+        }else{
+          if(errorCallback != null) {
+            errorCallback('请求失败，请稍后重试');
+          }
+        }
         return null;
       }
     } else {
-
-      var str = json.decode(response.statusCode.toString());
-
-      _handleHttpError(response.statusCode);
-      if(errorCallback != null) {
-        errorCallback(response.statusCode);
+      String msg = response.data['Head']['Msg'];
+      if(msg.length > 0) {
+        errorCallback('$msg');
+      }else{
+        if(errorCallback != null) {
+          errorCallback('请求失败，请稍后重试');
+        }
       }
       return null;
     }

@@ -88,7 +88,7 @@ class _HomePageState extends  State<Home> {
                                   color: Colors.red,fontSize: 16
                               )),
                           onPressed: () => {
-                          Navigator.pop(context),
+                          Navigator.pop(context)
                           },
                         )),
                   ],

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nucteh/api_manager/api_manager.dart';
+import 'package:nucteh/Utils/constant.dart';
+import 'package:nucteh/Utils/toast.dart';
 class Mine extends StatefulWidget {
 
   @override
@@ -34,18 +37,18 @@ class _MinePageState extends  State<Mine> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Padding(
-                          padding: EdgeInsets.only(top: 50),
-                          child: Image(
-                            image: NetworkImage('http://tongfangapi.feikongbao.net'+EmployeePhoto),
-                            width: 50,
-                            height: 50,
-                          ),
+                        padding: EdgeInsets.only(top: 50),
+                        child: Image(
+                          image: NetworkImage('http://tongfangapi.feikongbao.net'+EmployeePhoto),
+                          width: 50,
+                          height: 50,
+                        ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: Text(EmployeeName,style: TextStyle(
-                          color: Colors.white,fontSize: 20
-                        ),)
+                          padding: EdgeInsets.only(top: 10),
+                          child: Text(EmployeeName,style: TextStyle(
+                              color: Colors.white,fontSize: 20
+                          ),)
                       ),
                       Padding(
                           padding: EdgeInsets.only(top: 10),
@@ -88,8 +91,19 @@ class _MinePageState extends  State<Mine> {
                                   color: Colors.red,fontSize: 16
                               )),
                           onPressed: () => {
-                               Navigator.pop(context),
+                          DioUtil().LoginOut(context,Constant.LoginOutAccount,
+                          pathParams: {
                           },
+                          data: {},
+                          errorCallback: (statusCode) {
+                              Toast.show(context: context, msg: '$statusCode');
+                          }
+                          ).then((data) async {
+                             Toast.show(context: context, msg: '退出成功');
+                             ///跳转
+                             Navigator.pop(context);
+                          })
+                        },
                         )),
                   ],
                 )),

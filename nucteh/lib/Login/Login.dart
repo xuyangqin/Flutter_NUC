@@ -3,6 +3,7 @@ import 'package:nucteh/api_manager/api_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nucteh/TabBar.dart';
 import 'package:nucteh/Utils/constant.dart';
+import 'package:nucteh/Utils/toast.dart';
 class Login extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _LoginState();
@@ -119,11 +120,11 @@ class _LoginState extends State<Login> {
 ///登录
   _login(context) async{
     if(_userNameController.text.length == 0){
-//      showSnackBar("用户名不能小于6位!");
+      Toast.show(context: context, msg: '用户名不能小于6位!!');
       return;
     }
     if(_passController.text.length == 0){
-//      showSnackBar("请输入用户密码！！");
+      Toast.show(context: context, msg: '请输入用户密码!!');
       return;
     }
     Map param1 = {
@@ -134,22 +135,17 @@ class _LoginState extends State<Login> {
     };
     Map param2 = {'': ''};
     Map params = {'Content': param2, 'Head': param1};
-
-    DioUtil().Loginpost(Constant.LoginAccount,
+    DioUtil().Loginpost(context,Constant.LoginAccount,
         pathParams: {
         },
         data: params,
         errorCallback: (statusCode) {
-//          showSnackBar('$statusCode！！');
+          Toast.show(context: context, msg: '$statusCode');
         }
     ).then((data) async {
-      print('============求情返回$data');
-      var result = data;
-      var ret = data['Head']['Ret'];
-      var message = data['Head']['Msg'];
-      if (ret == 0) {
-        Map EmployeeInfo = result['Content']['EmployeeInfo'];
+        var result = data;
         Map Content = result['Content'];
+        Map EmployeeInfo = result['Content']['EmployeeInfo'];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('Uid', Content['Uid']);
@@ -160,14 +156,10 @@ class _LoginState extends State<Login> {
         prefs.setString('CellPhone', EmployeeInfo['CellPhone']);
         prefs.setString('EmployeeName', EmployeeInfo['EmployeeName']);
         prefs.setString('EmployeePhoto', EmployeeInfo['EmployeePhoto']);
-
+        ///跳转
         Navigator.of(context).push(MaterialPageRoute(builder: (context) {
           return new MyHomePage();
         }));
-      } else {
-//        showSnackBar('$message！！');
-      }
-
     });
   }
 }
