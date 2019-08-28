@@ -16,6 +16,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomPadding:false,
       appBar: AppBar(
         title: Text("登录"),
       ),

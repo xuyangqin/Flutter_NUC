@@ -1,9 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nucteh/Utils/constant.dart';
 import 'package:nucteh/Utils/toast.dart';
+import 'package:nucteh/Utils/loading_diading.dart';
 class Method {
   static final String get = "GET";
   static final String post = "POST";
@@ -121,14 +122,19 @@ class DioUtil {
     }
     ///弹出loading
     if(context != null){
-
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return LoadingDialog();
+          });
     }
 
     Response response = await _dio.request(path, data: data, options: Options(method: method));
 
     ///关闭loading
     if(response != null){
-
+      Navigator.of(context).pop();
     }
     if(response.statusCode == HttpStatus.ok || response.statusCode == HttpStatus.created) {
       try {
